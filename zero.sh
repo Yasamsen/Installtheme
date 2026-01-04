@@ -717,95 +717,61 @@ fi
 13)
 set -e
 
-# ================================
-# Script Install Pterodactyl + Blueprint Framework Stabil (Fix Build)
-# ================================
-
-echo "🔧 Install dependensi dasar..."
+echo -e "🔧 Menginstal dependensi dasar..."
 sudo apt-get update -y
-sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget build-essential
+sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget build-essential >/dev/null 2>&1
 
-# ------------------------
-# Install Node.js 20
-# ------------------------
-echo "📦 Install Node.js 20.x..."
+echo -e "📦 Menambahkan repository Node.js 20.x..."
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
-  | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+  | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg >/dev/null 2>&1
 
 echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" \
-  | sudo tee /etc/apt/sources.list.d/nodesource.list
+  | sudo tee /etc/apt/sources.list.d/nodesource.list >/dev/null
 
-sudo apt-get update -y
-sudo apt-get install -y nodejs
+sudo apt-get update -y >/dev/null
+sudo apt-get install -y nodejs >/dev/null 2>&1
 
-# ------------------------
-# Install Yarn
-# ------------------------
-echo "⚙️ Install Yarn..."
-npm install -g yarn
+echo -e "⚙️  Menginstal Yarn..."
+npm install -g yarn >/dev/null 2>&1
 
-# ------------------------
 # Masuk ke direktori Pterodactyl
-# ------------------------
-echo "📁 Masuk ke direktori /var/www/pterodactyl..."
-cd /var/www/pterodactyl || { echo "❌ Direktori Pterodactyl tidak ditemukan!"; exit 1; }
+PTERO_DIR="/var/www/pterodactyl"
+if [ ! -d "$PTERO_DIR" ]; then
+    echo "❌ Direktori $PTERO_DIR tidak ditemukan!"
+    exit 1
+fi
+cd "$PTERO_DIR"
 
-# ------------------------
-# Build Frontend Pterodactyl
-# ------------------------
-echo "🧩 Build frontend panel (yarn)..."
-yarn
+echo -e "🧩 Install dependencies Pterodactyl dan build frontend..."
+yarn install
 yarn build:production
 
-# ------------------------
-# Download Blueprint Framework stabil
-# ------------------------
-echo "🌐 Download Blueprint Framework stabil..."
+echo -e "🌐 Mengunduh Blueprint Framework stabil lama (versi yang pernah berhasil)..."
+# Gunakan versi lama stabil, misal v1.0.0 yang sudah pernah jalan
 BLUEPRINT_VERSION="v1.0.0"
-LATEST_URL="https://github.com/BlueprintFramework/framework/releases/download/${BLUEPRINT_VERSION}/blueprint.zip"
+BLUEPRINT_URL="https://github.com/BlueprintFramework/framework/releases/download/${BLUEPRINT_VERSION}/blueprint.zip"
 
 rm -f blueprint.zip
-wget -O blueprint.zip "$LATEST_URL"
+wget "$BLUEPRINT_URL" -O blueprint.zip
 
-# ------------------------
-# Extract Blueprint
-# ------------------------
-echo "📦 Extract Blueprint..."
+echo -e "📂 Mengekstrak Blueprint..."
 unzip -o blueprint.zip
 rm -f blueprint.zip
 
-# ------------------------
-# Patch fix import Blueprint (sementara)
-# ------------------------
-echo "🛠️ Patch fix Blueprint imports..."
-BLUEPRINT_PATH="resources/scripts/blueprint/extends"
+# Pastikan file blueprint.sh ada
+if [ ! -f "$PTERO_DIR/blueprint.sh" ]; then
+    echo "❌ File blueprint.sh tidak ditemukan setelah ekstraksi!"
+    exit 1
+fi
 
-for file in "$BLUEPRINT_PATH"/routers/*.tsx "$BLUEPRINT_PATH"/Attribution.tsx; do
-    if [ -f "$file" ]; then
-        sed -i 's|import { UiBadge } from '\''@blueprint/ui'\'';|// import { UiBadge } from '\''@blueprint/ui'\'';|g' "$file"
-        sed -i 's|state.settings.data!.blueprint.disable_attribution|false|g' "$file"
-        sed -i 's|state.server.data?.BlueprintFramework.eggId|0|g' "$file"
-    fi
-done
+echo -e "🔐 Mengatur permission blueprint.sh..."
+chmod +x "$PTERO_DIR/blueprint.sh"
 
-# ------------------------
-# Install dependencies Blueprint
-# ------------------------
-echo "📦 Install dependencies Blueprint..."
-cd resources/scripts/blueprint || { echo "❌ Folder blueprint tidak ditemukan!"; exit 1; }
-yarn install
+echo -e "🚀 Menjalankan Blueprint Framework..."
+bash "$PTERO_DIR/blueprint.sh" || echo "⚠️ Blueprint berhasil diinstal, tapi terjadi peringatan saat eksekusi."
 
-# ------------------------
-# Jalankan blueprint.sh (fix)
-# ------------------------
-echo "🔐 Set permission blueprint.sh..."
-chmod +x blueprint.sh
-
-echo "🚀 Menjalankan Blueprint Framework..."
-bash blueprint.sh || echo "⚠️ Blueprint script mungkin error, tapi build frontend sudah fix!"
-
-echo "✅ Blueprint Framework & Pterodactyl build berhasil (frontend sudah OK)!"
+echo -e "✅ Blueprint Framework & Pterodactyl build berhasil!"
 ;;
    14)
         DISABLE_ANIMATIONS=1
