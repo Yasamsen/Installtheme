@@ -713,7 +713,8 @@ else
     echo -e "❌ Gagal mengunduh file konfigurasi tambahan."
 fi
 ;;
-#!/bin/bash
+
+13)
 set -e
 
 echo "🔧 Install dependensi dasar..."
@@ -777,6 +778,7 @@ echo "🚀 Menjalankan Blueprint Framework (HARUS TANPA ERROR)..."
 bash blueprint.sh
 
 echo "✅ Blueprint Framework BERHASIL & VALID!"
+;;
    14)
         DISABLE_ANIMATIONS=1
         save_config
