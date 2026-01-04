@@ -1,5 +1,5 @@
 #!/bin/bash
-P
+
 ADMIN_WHATSAPP_NUMBER="081519986005"
 
 WHATSAPP_FILE="/var/whatsapp_number.txt"
