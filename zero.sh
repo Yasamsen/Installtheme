@@ -715,12 +715,20 @@ fi
 ;;
 
 13)
+#!/bin/bash
 set -e
+
+# ================================
+# Script Install Pterodactyl + Blueprint Framework Stabil
+# ================================
 
 echo "🔧 Install dependensi dasar..."
 sudo apt-get update -y
-sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget
+sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget build-essential
 
+# ------------------------
+# Install Node.js 20
+# ------------------------
 echo "📦 Install Node.js 20.x..."
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
@@ -732,52 +740,59 @@ echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.co
 sudo apt-get update -y
 sudo apt-get install -y nodejs
 
+# ------------------------
+# Install Yarn
+# ------------------------
 echo "⚙️ Install Yarn..."
 npm install -g yarn
 
-echo "📁 Masuk ke direktori Pterodactyl..."
-cd /var/www/pterodactyl || {
-  echo "❌ Direktori /var/www/pterodactyl tidak ditemukan!"
-  exit 1
-}
+# ------------------------
+# Masuk ke direktori Pterodactyl
+# ------------------------
+echo "📁 Masuk ke direktori /var/www/pterodactyl..."
+cd /var/www/pterodactyl || { echo "❌ Direktori Pterodactyl tidak ditemukan!"; exit 1; }
 
-echo "🧩 Install frontend panel (yarn)..."
+# ------------------------
+# Build Frontend Pterodactyl
+# ------------------------
+echo "🧩 Build frontend panel (yarn)..."
 yarn
 yarn build:production
 
-echo "🌐 Download Blueprint Framework terbaru..."
-# Ambil link .zip dari release terbaru
-LATEST_URL=$(curl -s https://api.github.com/repos/BlueprintFramework/framework/releases/latest \
-  | grep browser_download_url \
-  | grep '.zip"' \
-  | cut -d '"' -f 4 \
-  | head -n 1)
+# ------------------------
+# Download Blueprint Framework stabil
+# ------------------------
+echo "🌐 Download Blueprint Framework stabil..."
+BLUEPRINT_VERSION="v1.0.0" # versi stabil terbaru, bisa disesuaikan
+LATEST_URL="https://github.com/BlueprintFramework/framework/releases/download/${BLUEPRINT_VERSION}/blueprint.zip"
 
-if [ -z "$LATEST_URL" ]; then
-  echo "❌ Gagal mengambil Blueprint release URL"
-  exit 1
-fi
-
-echo "🔗 Download dari $LATEST_URL ..."
 rm -f blueprint.zip
 wget -O blueprint.zip "$LATEST_URL"
 
+# ------------------------
+# Extract Blueprint
+# ------------------------
 echo "📦 Extract Blueprint..."
 unzip -o blueprint.zip
 rm -f blueprint.zip
 
-if [ ! -f blueprint.sh ]; then
-  echo "❌ blueprint.sh tidak ditemukan setelah extract!"
-  exit 1
-fi
+# ------------------------
+# Install dependencies Blueprint
+# ------------------------
+echo "📦 Install dependencies Blueprint..."
+cd resources/scripts/blueprint || { echo "❌ Folder blueprint tidak ditemukan!"; exit 1; }
+yarn install
 
+# ------------------------
+# Jalankan blueprint.sh
+# ------------------------
 echo "🔐 Set permission blueprint.sh..."
 chmod +x blueprint.sh
 
-echo "🚀 Menjalankan Blueprint Framework (HARUS TANPA ERROR)..."
+echo "🚀 Menjalankan Blueprint Framework..."
 bash blueprint.sh
 
-echo "✅ Blueprint Framework BERHASIL & VALID!"
+echo "✅ Blueprint Framework & Pterodactyl build berhasil!"
 ;;
    14)
         DISABLE_ANIMATIONS=1
