@@ -946,6 +946,40 @@ yarn build:production --progress
 
 echo -e "${GREEN}🎉 Protect V${VERSION} & Build Panel berhasil dipasang.${RESET}"
 ;;
+23)
+set -e
+
+# Lokasi backup dan folder panel
+BACKUP_DIR="/var/www/pterodactyl-backup"
+PANEL_DIR="/var/www/pterodactyl"
+
+echo -e "🔄 Memulai proses restore dari backup..."
+
+# Cek backup ada atau tidak
+if [ ! -d "$BACKUP_DIR" ]; then
+    echo "❌ Backup tidak ditemukan di $BACKUP_DIR"
+    exit 1
+fi
+
+echo -e "🧹 Menghapus panel lama dan addon/theme/blueprint..."
+rm -rf "$PANEL_DIR/resources/scripts/blueprint"
+rm -rf "$PANEL_DIR/resources/scripts/themes"
+rm -rf "$PANEL_DIR/resources/scripts/addons"
+rm -rf "$PANEL_DIR/node_modules"
+rm -f "$PANEL_DIR/yarn.lock" "$PANEL_DIR/package-lock.json"
+
+echo -e "📂 Mengembalikan backup terakhir..."
+cp -r "$BACKUP_DIR/." "$PANEL_DIR/"
+
+echo -e "⚙️ Menginstall ulang dependensi resmi Pterodactyl..."
+cd "$PANEL_DIR"
+yarn install --frozen-lockfile
+
+echo -e "🏗️ Build panel Pterodactyl..."
+yarn build:production
+
+echo -e "✅ Restore dan build panel selesai! Panel sekarang bersih dan sudah sesuai backup."
+;;
 20)
     echo -e "${YELLOW}♻ Memulihkan dari backup...${RESET}"
 
