@@ -946,87 +946,6 @@ yarn build:production --progress
 
 echo -e "${GREEN}🎉 Protect V${VERSION} & Build Panel berhasil dipasang.${RESET}"
 ;;
-23)
-set -e
-
-# === KONFIGURASI ===
-PANEL_DIR="/var/www/pterodactyl"       # Lokasi panel Pterodactyl
-BACKUP_DIR="/var/backups/pterodactyl"  # Lokasi simpan backup
-DB_USER="pterodactyl"                   # User database
-DB_PASS="admin"                          # Password database
-DB_NAME="pterodactyl"                    # Nama database
-DB_HOST="localhost"
-DATE=$(date +%F_%H-%M-%S)
-
-mkdir -p "$BACKUP_DIR"
-
-# === MENU ===
-echo "==============================="
-echo " Pterodactyl Backup & Restore "
-echo "==============================="
-echo "1) Backup penuh panel + DB"
-echo "2) Restore dari backup"
-echo "3) Keluar"
-read -p "Pilih opsi (1-3): " OPTION
-
-# === BACKUP ===
-if [[ "$OPTION" == "1" ]]; then
-    echo -e "\n🔹 Memulai backup penuh panel..."
-
-    # Backup seluruh file panel (full)
-    tar -czvf "$BACKUP_DIR/panel-files-full-$DATE.tar.gz" -C "$PANEL_DIR" .
-
-    # Backup database
-    mysqldump -u "$DB_USER" -p"$DB_PASS" -h "$DB_HOST" "$DB_NAME" > "$BACKUP_DIR/panel-db-full-$DATE.sql"
-
-    echo -e "✅ Backup lengkap selesai!"
-    echo "📂 File backup tersimpan di: $BACKUP_DIR"
-    exit 0
-fi
-
-# === RESTORE ===
-if [[ "$OPTION" == "2" ]]; then
-    echo -e "\n⚠️  Proses restore akan menghapus panel lama!"
-    read -p "Lanjutkan? (y/n): " CONFIRM
-    if [[ "$CONFIRM" != "y" ]]; then
-        echo "❌ Restore dibatalkan."
-        exit 1
-    fi
-
-    # Tampilkan file backup yang ada
-    echo -e "\n📂 Daftar backup:"
-    ls -1 "$BACKUP_DIR"
-    
-    read -p "Masukkan nama file backup panel (*.tar.gz): " PANEL_BACKUP
-    read -p "Masukkan nama file backup DB (*.sql): " DB_BACKUP
-
-    # Hapus panel lama
-    echo -e "\n🧹 Menghapus panel lama..."
-    rm -rf "$PANEL_DIR"
-
-    # Restore panel
-    echo -e "\n📂 Mengembalikan file panel..."
-    tar -xzvf "$BACKUP_DIR/$PANEL_BACKUP" -C /
-
-    # Restore database
-    echo -e "\n⚙️ Mengembalikan database..."
-    mysql -u "$DB_USER" -p"$DB_PASS" -h "$DB_HOST" "$DB_NAME" < "$BACKUP_DIR/$DB_BACKUP"
-
-    # Install ulang dependencies & build panel
-    echo -e "\n📦 Menginstall dependensi & build panel..."
-    cd "$PANEL_DIR"
-    yarn install --frozen-lockfile
-    yarn build:production
-
-    echo -e "\n✅ Restore selesai! Panel sudah kembali seperti backup."
-    exit 0
-fi
-
-if [[ "$OPTION" == "3" ]]; then
-    echo "Keluar..."
-    exit 0
-fi
-;;
 20)
     echo -e "${YELLOW}♻ Memulihkan dari backup...${RESET}"
 
@@ -1160,6 +1079,90 @@ fi
     *)
         echo -e "${RED}Pilihan tidak valid.${RESET}"
         ;;
+23)
+set -e
+
+# === KONFIGURASI ===
+PANEL_DIR="/var/www/pterodactyl"       # Lokasi panel Pterodactyl
+BACKUP_DIR="/var/backups/pterodactyl"  # Lokasi simpan backup
+DB_HOST="127.0.0.1"
+
+# Ambil data DB otomatis dari file .env
+DB_NAME=$(grep DB_DATABASE "$PANEL_DIR/.env" | cut -d '=' -f2)
+DB_USER=$(grep DB_USERNAME "$PANEL_DIR/.env" | cut -d '=' -f2)
+DB_PASS=$(grep DB_PASSWORD "$PANEL_DIR/.env" | cut -d '=' -f2 | tr -d '"')
+
+DATE=$(date +%F_%H-%M-%S)
+
+mkdir -p "$BACKUP_DIR"
+
+# === MENU ===
+echo "==============================="
+echo " Pterodactyl Backup & Restore "
+echo "==============================="
+echo "1) Backup penuh panel + DB"
+echo "2) Restore dari backup"
+echo "3) Keluar"
+read -p "Pilih opsi (1-3): " OPTION
+
+# === BACKUP ===
+if [[ "$OPTION" == "1" ]]; then
+    echo -e "\n🔹 Memulai backup penuh panel..."
+
+    # Backup seluruh file panel (full)
+    tar -czvf "$BACKUP_DIR/panel-files-full-$DATE.tar.gz" -C "$PANEL_DIR" .
+
+    # Backup database
+    mysqldump -u "$DB_USER" -p"$DB_PASS" -h "$DB_HOST" "$DB_NAME" > "$BACKUP_DIR/panel-db-full-$DATE.sql"
+
+    echo -e "✅ Backup lengkap selesai!"
+    echo "📂 File backup tersimpan di: $BACKUP_DIR"
+    exit 0
+fi
+
+# === RESTORE ===
+if [[ "$OPTION" == "2" ]]; then
+    echo -e "\n⚠️  Proses restore akan menghapus panel lama!"
+    read -p "Lanjutkan? (y/n): " CONFIRM
+    if [[ "$CONFIRM" != "y" ]]; then
+        echo "❌ Restore dibatalkan."
+        exit 1
+    fi
+
+    # Tampilkan file backup yang ada
+    echo -e "\n📂 Daftar backup:"
+    ls -1 "$BACKUP_DIR"
+    
+    read -p "Masukkan nama file backup panel (*.tar.gz): " PANEL_BACKUP
+    read -p "Masukkan nama file backup DB (*.sql): " DB_BACKUP
+
+    # Hapus panel lama
+    echo -e "\n🧹 Menghapus panel lama..."
+    rm -rf "$PANEL_DIR"
+
+    # Restore panel
+    echo -e "\n📂 Mengembalikan file panel..."
+    tar -xzvf "$BACKUP_DIR/$PANEL_BACKUP" -C /
+
+    # Restore database
+    echo -e "\n⚙️ Mengembalikan database..."
+    mysql -u "$DB_USER" -p"$DB_PASS" -h "$DB_HOST" "$DB_NAME" < "$BACKUP_DIR/$DB_BACKUP"
+
+    # Install ulang dependencies & build panel
+    echo -e "\n📦 Menginstall dependensi & build panel..."
+    cd "$PANEL_DIR"
+    yarn install --frozen-lockfile
+    yarn build:production
+
+    echo -e "\n✅ Restore selesai! Panel sudah kembali seperti backup."
+    exit 0
+fi
+
+if [[ "$OPTION" == "3" ]]; then
+    echo "Keluar..."
+    exit 0
+fi
+;;
 esac
 
 animate_text "𝗣𝗥𝗢𝗦𝗘𝗦 𝗦𝗘𝗟𝗘𝗦𝗔𝗜"
