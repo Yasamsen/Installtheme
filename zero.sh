@@ -1237,17 +1237,21 @@ echo ""
 
 ADMIN_USER="admin"
 ADMIN_EMAIL="admin@gmail.com"
+
 DB_USER="admin"
 DB_PASS="admin"
 
-# =====================
+# ===== DEPENDENCY =====
 apt update -y
 apt install -y expect curl
 
-# ================= PANEL =================
+# =========================
+# INSTALL PANEL
+# =========================
 echo "📦 INSTALL PANEL"
 expect <<EOF
-spawn bash <(curl -s https://pterodactyl-installer.se)
+set timeout -1
+spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
 
 expect "Input 0-6"
 send "0\r"
@@ -1306,10 +1310,13 @@ send "A\r"
 expect eof
 EOF
 
-# ================= NODE =================
-echo "🪶 INSTALL NODE"
+# =========================
+# INSTALL NODE / WINGS
+# =========================
+echo "🪶 INSTALL NODE / WINGS"
 expect <<EOF
-spawn bash <(curl -s https://pterodactyl-installer.se)
+set timeout -1
+spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
 
 expect "Input 0-6"
 send "1\r"
@@ -1335,10 +1342,13 @@ send "$ADMIN_EMAIL\r"
 expect eof
 EOF
 
-# ================= CREATE NODE =================
+# =========================
+# CREATE NODE (AUTOMATIC)
+# =========================
 echo "📍 CREATE NODE"
 expect <<EOF
-spawn bash <(curl -s https://raw.githubusercontent.com/SkyzoOffc/Pterodactyl-Theme-Autoinstaller/main/createnode.s)
+set timeout -1
+spawn bash -c "bash <(curl -s https://raw.githubusercontent.com/SkyzoOffc/Pterodactyl-Theme-Autoinstaller/main/createnode.s)"
 
 expect "Masukkan nama lokasi"
 send "Singapore\r"
@@ -1364,16 +1374,18 @@ send "1\r"
 expect eof
 EOF
 
-# ================= DONE =================
+# =========================
+# DONE
+# =========================
 clear
 echo "🎉 INSTALL SELESAI"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 Panel   : https://$PANEL_DOMAIN"
-echo "🌐 Node    : https://$NODE_DOMAIN"
-echo "👤 User    : $ADMIN_USER"
-echo "🔐 Pass    : $ADMIN_PASS"
+echo "🌐 Panel  : https://$PANEL_DOMAIN"
+echo "🌐 Node   : https://$NODE_DOMAIN"
+echo "👤 User   : $ADMIN_USER"
+echo "🔐 Pass   : $ADMIN_PASS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "➡️ Buat Allocation & Ambil Token Wings dari Panel"
+echo "➡️ Login panel → buat Allocation → ambil Token Wings"
 ;;
     *)
         echo -e "${RED}Pilihan tidak valid.${RESET}"
