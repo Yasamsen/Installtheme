@@ -178,7 +178,7 @@ echo -e "${GREEN}20.${RESET} RESTORE DARI BACKUP DAN BUILD"
 echo -e "${GREEN}21.${RESET} INSTALL PROTECT"
 echo -e "${GREEN}22.${RESET} RESTORE"
 echo
-echo -e "${WHITE}${BOLD} SYSTEM PTERODACTYL${RESET}"
+echo -e "${WHITE}${BOLD}SYSTEM PTERODACTYL${RESET}"
 echo -e "${GREEN}23.${RESET} BECKUP DATA PTERODACTYL"
 echo -e "${GREEN}24.${RESET} UNINSTALL PTERODACTYL"
 echo -e "${YELLOW}${BOLD}──────────────────────────────────────────────${RESET}"
