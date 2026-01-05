@@ -1223,7 +1223,7 @@ set -e
 clear
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🚀 AUTO INSTALL PTERODACTYL"
+echo "🚀 AUTO INSTALL PTERODACTYL (FULL AUTO)"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
@@ -1320,7 +1320,6 @@ php /var/www/pterodactyl/artisan p:allocation:add \
 # ================= AUTO TOKEN =================
 echo "🔑 AUTO AMBIL TOKEN NODE"
 cd /var/www/pterodactyl
-
 TOKEN=$(php artisan p:node:generate-token 1 | grep -oE '[A-Za-z0-9._-]{20,}')
 
 # ================= CONFIG WINGS =================
