@@ -185,33 +185,47 @@ echo -e "${GREEN}25.${RESET} Install PTERODACTYL"
 echo -e "${YELLOW}${BOLD}──────────────────────────────────────────────${RESET}"
 read -p "$(echo -e "${CYAN}${BOLD}PILIH OPSI (1-24): ${RESET}")" OPTION
 case "$OPTION" in
-     1)
-        GITHUB_TOKEN="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"
-        REPO_URL="https://github.com/KiwamiXq1031/installer-premium.git"
-        TEMP_DIR="installer-premium"
+1)
+# ===============================
+# Skrip Install Tema Elysium Pterodactyl
+# ===============================
 
-        git clone "https://${GITHUB_TOKEN}@github.com/KiwamiXq1031/installer-premium.git" "$TEMP_DIR"
+# Ganti USERNAME dengan username GitHub kamu
+REPO_URL="https://github.com/USERNAME/installer-premium.git"
+TEMP_DIR="installer-premium"
 
-        sudo mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
-        unzip -o /var/www/ElysiumTheme.zip -d /var/www/
-        rm -rf "$TEMP_DIR"
-        rm -f /var/www/ElysiumTheme.zip
+# Clone repo dari GitHub
+echo "📥 Meng-clone repository dari GitHub..."
+git clone "$REPO_URL" "$TEMP_DIR"
 
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
-        echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+# Pindahkan dan ekstrak tema
+echo "📦 Memindahkan dan mengekstrak tema..."
+sudo mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
+unzip -o /var/www/ElysiumTheme.zip -d /var/www/
+rm -rf "$TEMP_DIR"
+rm -f /var/www/ElysiumTheme.zip
 
-        sudo apt update -y
-        sudo apt install -y nodejs npm
-        sudo npm install -g yarn
+# Install Node.js 20 dan Yarn
+echo "⚙️ Menyiapkan Node.js dan Yarn..."
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
 
-        cd /var/www/pterodactyl || exit
-        yarn
-        yarn build:production
-        php artisan migrate --force
-        php artisan view:clear
-        animate_text "Tema Elysium berhasil diinstal."
-        ;;
+sudo apt update -y
+sudo apt install -y nodejs npm
+sudo npm install -g yarn
+
+# Build Pterodactyl
+echo "🚀 Membangun panel Pterodactyl..."
+cd /var/www/pterodactyl || exit
+yarn
+yarn build:production
+php artisan migrate --force
+php artisan view:clear
+
+# Sukses
+echo "✅ Tema Elysium berhasil diinstal!"
+;;
      2)
         clear
         echo -e "${BLUE}[+] =============================================== [+]${NC}"
