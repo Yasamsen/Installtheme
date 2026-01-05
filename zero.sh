@@ -209,15 +209,33 @@ unzip -o /var/www/ElysiumTheme.zip -d /var/www/
 rm -rf "$TEMP_DIR"
 rm -f /var/www/ElysiumTheme.zip
 
-echo "⚙️ Menyiapkan Node.js 20 dan Yarn..."
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg || true
-echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list > /dev/null
+# =========================================
+# Memastikan Node.js 20 & Yarn aktif via nvm
+# =========================================
+echo "⚙️ Memastikan Node.js 20 dan Yarn aktif..."
 
-sudo apt update -y
-sudo apt install -y nodejs npm || true
-sudo npm install -g yarn || true
+# Load nvm jika ada
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
+# Install Node.js 20 via nvm jika belum ada
+if ! command -v node >/dev/null 2>&1 || [[ $(node -v | cut -d'v' -f2 | cut -d'.' -f1) -lt 20 ]]; then
+    echo "🔧 Node.js < 20 atau tidak ditemukan, menginstall Node.js 20 via nvm..."
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    nvm install 20
+    nvm use 20
+    nvm alias default 20
+fi
+
+# Install Yarn jika belum ada
+command -v yarn >/dev/null 2>&1 || npm install -g yarn
+
+echo "✅ Node.js $(node -v), npm $(npm -v), Yarn $(yarn -v) siap digunakan!"
+
+# =========================================
+# Build panel Pterodactyl & install tema
+# =========================================
 echo "🚀 Membangun panel Pterodactyl..."
 cd /var/www/pterodactyl || { echo "❌ Folder /var/www/pterodactyl tidak ditemukan!"; exit 1; }
 
