@@ -721,16 +721,8 @@ echo -e "🔧 Menginstal dependensi dasar..."
 sudo apt-get update -y
 sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget build-essential
 
-echo -e "📦 Menambahkan repository Node.js 20.x..."
-sudo mkdir -p /etc/apt/keyrings
-
-# Gunakan nama distribusi yang sesuai
-DISTRO=$(lsb_release -cs)
-curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-
-echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x $DISTRO main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-
-sudo apt-get update -y
+echo -e "📦 Menambahkan repository Node.js 18.x..."
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 echo -e "⚙️ Menginstal Yarn..."
