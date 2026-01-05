@@ -1227,159 +1227,134 @@ echo "🚀 AUTO INSTALL PTERODACTYL"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# ===== INPUT =====
-read -p "🌐 Domain Panel: " PANEL_DOMAIN
-read -p "🌐 Domain Node : " NODE_DOMAIN
+# ===== INPUT USER =====
+read -p "🌐 Domain Panel (panel.example.com): " PANEL_DOMAIN
+read -p "🌐 Domain Node  (node.example.com): " NODE_DOMAIN
 read -p "🧠 RAM Node (MB): " RAM_MB
 read -s -p "🔐 Password Admin Panel: " ADMIN_PASS
-echo ""
+echo -e "\n"
 
 ADMIN_USER="admin"
 ADMIN_EMAIL="admin@gmail.com"
 DB_USER="admin"
 DB_PASS="admin"
 
+ALLOC_START=5000
+ALLOC_END=5999
+ALLOC_NAME="Yasam🎉"
+
 # ===== DEPENDENCY =====
 apt update -y
-apt install -y expect curl
+apt install -y curl expect jq
 
 # ===== DOWNLOAD INSTALLER =====
-curl -s https://pterodactyl-installer.se -o /root/ptero-installer.sh
-chmod +x /root/ptero-installer.sh
+curl -fsSL https://pterodactyl-installer.se -o /root/ptero.sh
+chmod +x /root/ptero.sh
 
 # ================= PANEL =================
 echo "📦 INSTALL PANEL"
 expect <<EOF
 set timeout -1
-spawn bash /root/ptero-installer.sh
-
-expect "Input 0-6"
-send "0\r"
-
-expect "(y/N)"
-send "y\r"
-
-expect "Database name"
-send "\r"
-
-expect "Database username"
-send "$DB_USER\r"
-
-expect "Password"
-send "$DB_PASS\r"
-
-expect "Select timezone"
-send "Asia/Jakarta\r"
-
-expect "Provide the email address"
-send "$ADMIN_EMAIL\r"
-
-expect "Email address for the initial admin account"
-send "$ADMIN_EMAIL\r"
-
-expect "Username for the initial admin account"
-send "$ADMIN_USER\r"
-
-expect "First name"
-send "Admin\r"
-
-expect "Last name"
-send "Panel\r"
-
-expect "Password for the initial admin account"
-send "$ADMIN_PASS\r"
-
-expect "Set the FQDN of this panel"
-send "$PANEL_DOMAIN\r"
-
-expect "automatically configure UFW"
-send "y\r"
-
-expect "automatically configure HTTPS"
-send "y\r"
-
-expect "Select the appropriate number"
-send "1\r"
-
-expect "(A)gree/(C)ancel"
-send "A\r"
-
+spawn bash /root/ptero.sh
+expect "Input 0-6"; send "0\r"
+expect "(y/N)"; send "y\r"
+expect -re "Database name"; send "\r"
+expect -re "Database.*username"; send "$DB_USER\r"
+expect -re "Database.*password"; send "$DB_PASS\r"
+expect -re "Select timezone"; send "Asia/Jakarta\r"
+expect -re "Provide the email address"; send "$ADMIN_EMAIL\r"
+expect -re "Email address for the initial admin account"; send "$ADMIN_EMAIL\r"
+expect -re "Username for the initial admin account"; send "$ADMIN_USER\r"
+expect -re "First name"; send "Admin\r"
+expect -re "Last name"; send "Panel\r"
+expect -re "Password for the initial admin account"; send "$ADMIN_PASS\r"
+expect -re "Set the FQDN of this panel"; send "$PANEL_DOMAIN\r"
+expect -re "configure UFW"; send "y\r"
+expect -re "configure HTTPS"; send "y\r"
+expect -re "Select the appropriate number"; send "1\r"
+expect -re "(A)gree"; send "A\r"
 expect eof
 EOF
 
-# ================= NODE =================
-echo "🪶 INSTALL NODE / WINGS"
+# ================= WINGS =================
+echo "🪶 INSTALL WINGS"
 expect <<EOF
 set timeout -1
-spawn bash /root/ptero-installer.sh
-
-expect "Input 0-6"
-send "1\r"
-
-expect "(y/N)"
-send "y\r"
-
-expect "Enter the panel address"
-send "$PANEL_DOMAIN\r"
-
-expect "Database host username"
-send "$DB_USER\r"
-
-expect "Database host password"
-send "$DB_PASS\r"
-
-expect "Set the FQDN"
-send "$NODE_DOMAIN\r"
-
-expect "Enter email address"
-send "$ADMIN_EMAIL\r"
-
+spawn bash /root/ptero.sh
+expect "Input 0-6"; send "1\r"
+expect "(y/N)"; send "y\r"
+expect -re "Enter the panel address"; send "$PANEL_DOMAIN\r"
+expect -re "Database.*username"; send "$DB_USER\r"
+expect -re "Database.*password"; send "$DB_PASS\r"
+expect -re "Set the FQDN"; send "$NODE_DOMAIN\r"
+expect -re "Enter email address"; send "$ADMIN_EMAIL\r"
 expect eof
 EOF
 
 # ================= CREATE NODE =================
 echo "📍 CREATE NODE"
-curl -s https://raw.githubusercontent.com/SkyzoOffc/Pterodactyl-Theme-Autoinstaller/main/createnode.s -o /root/createnode.sh
+curl -fsSL https://raw.githubusercontent.com/SkyzoOffc/Pterodactyl-Theme-Autoinstaller/main/createnode.s -o /root/createnode.sh
 chmod +x /root/createnode.sh
 
 expect <<EOF
 set timeout -1
 spawn bash /root/createnode.sh
-
-expect "Masukkan nama lokasi"
-send "Singapore\r"
-
-expect "Masukkan deskripsi lokasi"
-send "Node Auto\r"
-
-expect "Masukkan domain"
-send "$NODE_DOMAIN\r"
-
-expect "Masukkan nama node"
-send "AutoNode\r"
-
-expect "Masukkan RAM"
-send "$RAM_MB\r"
-
-expect "Masukkan jumlah maksimum disk space"
-send "$RAM_MB\r"
-
-expect "Masukkan Locid"
-send "1\r"
-
+expect "Masukkan nama lokasi"; send "Singapore\r"
+expect "Masukkan deskripsi lokasi"; send "Node Yasam\r"
+expect "Masukkan domain"; send "$NODE_DOMAIN\r"
+expect "Masukkan nama node"; send "Node Yasam\r"
+expect "Masukkan RAM"; send "$RAM_MB\r"
+expect "Masukkan jumlah maksimum disk space"; send "$RAM_MB\r"
+expect "Masukkan Locid"; send "1\r"
 expect eof
 EOF
 
+# ================= AUTO ALLOCATION =================
+echo "📦 AUTO ALLOCATION"
+php /var/www/pterodactyl/artisan p:allocation:add \
+  --node=1 \
+  --ip=0.0.0.0 \
+  --ports=$ALLOC_START-$ALLOC_END \
+  --alias="$ALLOC_NAME"
+
+# ================= AUTO TOKEN =================
+echo "🔑 AUTO AMBIL TOKEN NODE"
+cd /var/www/pterodactyl
+
+TOKEN=$(php artisan p:node:generate-token 1 | grep -oE '[A-Za-z0-9._-]{20,}')
+
+# ================= CONFIG WINGS =================
+cat > /etc/pterodactyl/config.yml <<EOF
+debug: false
+uuid: auto
+token: "$TOKEN"
+api:
+  host: https://$PANEL_DOMAIN
+  ssl:
+    enabled: true
+system:
+  data: /var/lib/pterodactyl
+  sftp:
+    bind_port: 2022
+allowed_mounts: []
+EOF
+
+systemctl enable wings
+systemctl restart wings
+
 # ================= DONE =================
 clear
-echo "🎉 INSTALL SELESAI"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🌐 Panel  : https://$PANEL_DOMAIN"
-echo "🌐 Node   : https://$NODE_DOMAIN"
-echo "👤 User   : admin"
-echo "🔐 Pass   : $ADMIN_PASS"
+echo "🎉 SEMUA SELESAI & NODE ONLINE"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "➡️ Login panel → buat Allocation → ambil Token Wings"
+echo "🌐 Panel : https://$PANEL_DOMAIN"
+echo "🌐 Node  : https://$NODE_DOMAIN"
+echo "👤 User  : admin"
+echo "🔐 Pass  : $ADMIN_PASS"
+echo "📦 Port  : $ALLOC_START-$ALLOC_END"
+echo "🎉 Name  : Yasam🎉"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ Panel & Node LANGSUNG SIAP DIPAKAI"
 ;;
     *)
         echo -e "${RED}Pilihan tidak valid.${RESET}"
