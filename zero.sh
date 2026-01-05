@@ -1227,17 +1227,15 @@ echo "🚀 AUTO INSTALL PTERODACTYL"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# ===== INPUT USER =====
-read -p "🌐 Domain Panel (panel.example.com): " PANEL_DOMAIN
-read -p "🌐 Domain Node  (node.example.com): " NODE_DOMAIN
-read -p "🧠 RAM Node (MB, contoh 100000): " RAM_MB
+# ===== INPUT =====
+read -p "🌐 Domain Panel: " PANEL_DOMAIN
+read -p "🌐 Domain Node : " NODE_DOMAIN
+read -p "🧠 RAM Node (MB): " RAM_MB
 read -s -p "🔐 Password Admin Panel: " ADMIN_PASS
-echo ""
 echo ""
 
 ADMIN_USER="admin"
 ADMIN_EMAIL="admin@gmail.com"
-
 DB_USER="admin"
 DB_PASS="admin"
 
@@ -1245,13 +1243,15 @@ DB_PASS="admin"
 apt update -y
 apt install -y expect curl
 
-# =========================
-# INSTALL PANEL
-# =========================
+# ===== DOWNLOAD INSTALLER =====
+curl -s https://pterodactyl-installer.se -o /root/ptero-installer.sh
+chmod +x /root/ptero-installer.sh
+
+# ================= PANEL =================
 echo "📦 INSTALL PANEL"
 expect <<EOF
 set timeout -1
-spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
+spawn bash /root/ptero-installer.sh
 
 expect "Input 0-6"
 send "0\r"
@@ -1301,22 +1301,17 @@ send "y\r"
 expect "Select the appropriate number"
 send "1\r"
 
-expect "I agree"
-send "y\r"
-
 expect "(A)gree/(C)ancel"
 send "A\r"
 
 expect eof
 EOF
 
-# =========================
-# INSTALL NODE / WINGS
-# =========================
+# ================= NODE =================
 echo "🪶 INSTALL NODE / WINGS"
 expect <<EOF
 set timeout -1
-spawn bash -c "bash <(curl -s https://pterodactyl-installer.se)"
+spawn bash /root/ptero-installer.sh
 
 expect "Input 0-6"
 send "1\r"
@@ -1333,7 +1328,7 @@ send "$DB_USER\r"
 expect "Database host password"
 send "$DB_PASS\r"
 
-expect "Set the FQDN to use for Let's Encrypt"
+expect "Set the FQDN"
 send "$NODE_DOMAIN\r"
 
 expect "Enter email address"
@@ -1342,19 +1337,20 @@ send "$ADMIN_EMAIL\r"
 expect eof
 EOF
 
-# =========================
-# CREATE NODE (AUTOMATIC)
-# =========================
+# ================= CREATE NODE =================
 echo "📍 CREATE NODE"
+curl -s https://raw.githubusercontent.com/SkyzoOffc/Pterodactyl-Theme-Autoinstaller/main/createnode.s -o /root/createnode.sh
+chmod +x /root/createnode.sh
+
 expect <<EOF
 set timeout -1
-spawn bash -c "bash <(curl -s https://raw.githubusercontent.com/SkyzoOffc/Pterodactyl-Theme-Autoinstaller/main/createnode.s)"
+spawn bash /root/createnode.sh
 
 expect "Masukkan nama lokasi"
 send "Singapore\r"
 
 expect "Masukkan deskripsi lokasi"
-send "Node By Script\r"
+send "Node Auto\r"
 
 expect "Masukkan domain"
 send "$NODE_DOMAIN\r"
@@ -1374,15 +1370,13 @@ send "1\r"
 expect eof
 EOF
 
-# =========================
-# DONE
-# =========================
+# ================= DONE =================
 clear
 echo "🎉 INSTALL SELESAI"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🌐 Panel  : https://$PANEL_DOMAIN"
 echo "🌐 Node   : https://$NODE_DOMAIN"
-echo "👤 User   : $ADMIN_USER"
+echo "👤 User   : admin"
 echo "🔐 Pass   : $ADMIN_PASS"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "➡️ Login panel → buat Allocation → ambil Token Wings"
