@@ -868,6 +868,9 @@ else
 fi
 ;;
 19)
+# === SET PATH FILE WAJIB ===
+CONTROLLER_USER="/var/www/pterodactyl/app/Http/Controllers/Admin/UserController.php"
+SERVICE_SERVER="/var/www/pterodactyl/app/Services/Servers/ServerDeletionService.php"
 # Pastikan variabel penting terisi
 if [ -z "$CONTROLLER_USER" ] || [ -z "$SERVICE_SERVER" ]; then
     echo -e "${RED}❌ Variabel CONTROLLER_USER atau SERVICE_SERVER belum diatur.${RESET}"
