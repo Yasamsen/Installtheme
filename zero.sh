@@ -186,68 +186,26 @@ echo -e "${YELLOW}${BOLD}──────────────────�
 read -p "$(echo -e "${CYAN}${BOLD}PILIH OPSI (1-24): ${RESET}")" OPTION
 case "$OPTION" in
 1)
-# =========================================
-# Skrip Full Otomatis Install Tema Elysium
-# =========================================
-
-# Repo public kamu
 REPO_URL="https://github.com/Yasamsen/ElysiumTheme.git"
 TEMP_DIR="ElysiumTheme"
 
-echo "📥 Meng-clone repository tema dari GitHub..."
-git clone "$REPO_URL" "$TEMP_DIR" || { echo "❌ Gagal clone repo! Pastikan URL benar."; exit 1; }
+echo "📥 Meng-clone repository dari GitHub..."
+git clone "$REPO_URL" "$TEMP_DIR"
 
-# Cek apakah file zip ada
-if [ ! -f "$TEMP_DIR/ElysiumTheme.zip" ]; then
-    echo "❌ File ElysiumTheme.zip tidak ditemukan di repo!"
-    exit 1
-fi
-
-echo "📦 Memindahkan dan mengekstrak file tema..."
+echo "📦 Memindahkan dan mengekstrak tema..."
 sudo mv "$TEMP_DIR/ElysiumTheme.zip" /var/www/
 unzip -o /var/www/ElysiumTheme.zip -d /var/www/
 rm -rf "$TEMP_DIR"
 rm -f /var/www/ElysiumTheme.zip
 
-# =========================================
-# Memastikan Node.js 20 & Yarn aktif via nvm
-# =========================================
-echo "⚙️ Memastikan Node.js 20 dan Yarn aktif..."
-
-# Load nvm jika ada
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-# Install Node.js 20 via nvm jika belum ada
-if ! command -v node >/dev/null 2>&1 || [[ $(node -v | cut -d'v' -f2 | cut -d'.' -f1) -lt 20 ]]; then
-    echo "🔧 Node.js < 20 atau tidak ditemukan, menginstall Node.js 20 via nvm..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm install 20
-    nvm use 20
-    nvm alias default 20
-fi
-
-# Install Yarn jika belum ada
-command -v yarn >/dev/null 2>&1 || npm install -g yarn
-
-echo "✅ Node.js $(node -v), npm $(npm -v), Yarn $(yarn -v) siap digunakan!"
-
-# =========================================
-# Build panel Pterodactyl & install tema
-# =========================================
 echo "🚀 Membangun panel Pterodactyl..."
-cd /var/www/pterodactyl || { echo "❌ Folder /var/www/pterodactyl tidak ditemukan!"; exit 1; }
-
-# Install dependencies & build front-end
+cd /var/www/pterodactyl || exit
 yarn
 yarn build:production
-
-# Update database & clear cache
 php artisan migrate --force
 php artisan view:clear
 
-echo "✨ Tema Elysium berhasil diinstal!"
+animate_text "✨ Tema Elysium berhasil diinstal."
 ;;
      2)
         clear
