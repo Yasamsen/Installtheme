@@ -894,7 +894,7 @@ awk -v admin_id="$ADMIN_ID" -v version="$VERSION" '
 in_func == 1 && /^\s*{/ {
     print;
     print "        if ($request->user()->id !== " admin_id ") {";
-    print "            throw new DisplayException(\"Lu Siapa Mau Delet User Lain Tolol? Izin dulu sama ID 1 kalo mau delet. ©Protect By Zero - Protect V" version "\");";
+    print "            throw new DisplayException(\"Lu Siapa Mau Delet User Lain Tolol? Izin dulu sama ID 1 kalo mau delet. ©Protect By Yasam - Protect V" version "\");";
     print "        }";
     in_func = 0; next;
 }
@@ -934,7 +934,7 @@ in_func == 1 && /^\s*{/ {
     print;
     print "        $user = Auth::user();";
     print "        if ($user && $user->id !== " admin_id ") {";
-    print "            throw new DisplayException(\"Lu Siapa Mau Delet Server Lain Tolol? Izin dulu sama ID 1 kalo mau delet. ©Protect By Zero - Protect V" version "\");";
+    print "            throw new DisplayException(\"Lu Siapa Mau Delet Server Lain Tolol? Izin dulu sama ID 1 kalo mau delet. ©Protect By Yasam - Protect V" version "\");";
     print "        }";
     in_func = 0; next;
 }
