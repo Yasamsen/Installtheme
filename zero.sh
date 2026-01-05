@@ -176,9 +176,13 @@ echo -e "${WHITE}${BOLD}PROTECT PTERODACTYL${RESET}"
 echo -e "${GREEN}19.${RESET} PASANG PROTECT & BUILD PANEL"
 echo -e "${GREEN}20.${RESET} RESTORE DARI BACKUP DAN BUILD"
 echo -e "${GREEN}21.${RESET} INSTALL PROTECT"
-echo -e "${GREEN}22.${RESET} RESTORE"
+echo -e "${GREEN}22.${RESET} RESTORE
+echo"
+echo -e "${WHITE}${BOLD} SYSTEM PTERODACTYL${RESET}"
+echo -e "${GREEN}23.${RESET} BECKUP DATA PTERODACTYL"
+echo -e "${GREEN}24.${RESET} UNINSTALL PTERODACTYL"
 echo -e "${YELLOW}${BOLD}──────────────────────────────────────────────${RESET}"
-read -p "$(echo -e "${CYAN}${BOLD}PILIH OPSI (1-20): ${RESET}")" OPTION
+read -p "$(echo -e "${CYAN}${BOLD}PILIH OPSI (1-24): ${RESET}")" OPTION
 case "$OPTION" in
      1)
         GITHUB_TOKEN="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"
@@ -1064,6 +1068,44 @@ if [[ "$OPTION" == "3" ]]; then
     echo "Keluar..."
     exit 0
 fi
+;;
+24)
+set -e
+
+echo "🧼 STOP & DISABLE SERVICES"
+systemctl stop apache2 nginx mariadb mysql redis-server wings pterodactyl php*-fpm || true
+systemctl disable apache2 nginx mariadb mysql redis-server wings php*-fpm || true
+
+echo "🧹 PURGE PACKAGES"
+apt purge -y \
+  apache2* nginx* \
+  mysql* mariadb* \
+  redis* \
+  php* \
+  certbot* || true
+
+echo "🗑️ REMOVE LEFTOVER FILES"
+rm -rf /var/www/*
+rm -rf /var/lib/pterodactyl
+rm -rf /etc/pterodactyl
+rm -rf /etc/nginx
+rm -rf /etc/apache2
+rm -rf /etc/php
+rm -rf /etc/mysql
+rm -rf /etc/redis
+rm -rf /etc/letsencrypt
+rm -rf /root/.composer
+
+echo "🧽 CLEAN SYSTEM"
+apt autoremove -y
+apt autoclean
+
+echo "🔄 RELOAD SYSTEMD"
+systemctl daemon-reexec
+systemctl daemon-reload
+
+echo "✅ CLEAN SELESAI"
+echo "👉 Disarankan REBOOT"
 ;;
     21)
     read -p "$(echo -e "${CYAN}👤 Masukkan ID Admin Utama (contoh: 1): ${RESET}")" ADMIN_ID
