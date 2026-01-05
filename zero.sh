@@ -977,7 +977,7 @@ DB_HOST="127.0.0.1"
 # Ambil data DB otomatis dari file .env
 DB_NAME=$(grep DB_DATABASE "$PANEL_DIR/.env" | cut -d '=' -f2)
 DB_USER=$(grep DB_USERNAME "$PANEL_DIR/.env" | cut -d '=' -f2)
-DB_PASS=$(grep DB_PASSWORD "$PANEL_DIR/.env" | cut -d '=' -f2 | tr -d '"')
+DB_PASS="_]HnEat&LlEpsB:pub@4=NecOgY#!n#?%mj/OM`#z(MCME1!r[2O>
 
 DATE=$(date +%F_%H-%M-%S)
 
