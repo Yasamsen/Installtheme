@@ -1099,7 +1099,7 @@ fi
             print;
             print "        $user = Auth::user();";
             print "        if (!$user || $user->id !== " admin_id ") {";
-            print "            abort(403, \"Zero Protect - Akses ditolak\");";
+            print "            abort(403, \"Yasam Protect - Akses ditolak\");";
             print "        }";
             in_func = 0; next;
         }
