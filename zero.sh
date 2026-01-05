@@ -181,6 +181,7 @@ echo
 echo -e "${WHITE}${BOLD}SYSTEM PTERODACTYL${RESET}"
 echo -e "${GREEN}23.${RESET} BECKUP DATA PTERODACTYL"
 echo -e "${GREEN}24.${RESET} UNINSTALL PTERODACTYL"
+echo -e "${GREEN}25.${RESET} Install PTERODACTYL"
 echo -e "${YELLOW}${BOLD}──────────────────────────────────────────────${RESET}"
 read -p "$(echo -e "${CYAN}${BOLD}PILIH OPSI (1-24): ${RESET}")" OPTION
 case "$OPTION" in
@@ -1217,6 +1218,163 @@ echo "👉 Disarankan REBOOT"
     echo -e "\n${GREEN}✅ Restore & rebuild panel selesai.${RESET}"
     echo -e "${BLUE}📁 Semua file dikembalikan ke versi sebelum Protect.${RESET}"
     ;;
+25)
+set -e
+clear
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🚀 AUTO INSTALL PTERODACTYL"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# ===== INPUT USER =====
+read -p "🌐 Domain Panel (panel.example.com): " PANEL_DOMAIN
+read -p "🌐 Domain Node  (node.example.com): " NODE_DOMAIN
+read -p "🧠 RAM Node (MB, contoh 100000): " RAM_MB
+read -s -p "🔐 Password Admin Panel: " ADMIN_PASS
+echo ""
+echo ""
+
+ADMIN_USER="admin"
+ADMIN_EMAIL="admin@gmail.com"
+DB_USER="admin"
+DB_PASS="admin"
+
+# =====================
+apt update -y
+apt install -y expect curl
+
+# ================= PANEL =================
+echo "📦 INSTALL PANEL"
+expect <<EOF
+spawn bash <(curl -s https://pterodactyl-installer.se)
+
+expect "Input 0-6"
+send "0\r"
+
+expect "(y/N)"
+send "y\r"
+
+expect "Database name"
+send "\r"
+
+expect "Database username"
+send "$DB_USER\r"
+
+expect "Password"
+send "$DB_PASS\r"
+
+expect "Select timezone"
+send "Asia/Jakarta\r"
+
+expect "Provide the email address"
+send "$ADMIN_EMAIL\r"
+
+expect "Email address for the initial admin account"
+send "$ADMIN_EMAIL\r"
+
+expect "Username for the initial admin account"
+send "$ADMIN_USER\r"
+
+expect "First name"
+send "Admin\r"
+
+expect "Last name"
+send "Panel\r"
+
+expect "Password for the initial admin account"
+send "$ADMIN_PASS\r"
+
+expect "Set the FQDN of this panel"
+send "$PANEL_DOMAIN\r"
+
+expect "automatically configure UFW"
+send "y\r"
+
+expect "automatically configure HTTPS"
+send "y\r"
+
+expect "Select the appropriate number"
+send "1\r"
+
+expect "I agree"
+send "y\r"
+
+expect "(A)gree/(C)ancel"
+send "A\r"
+
+expect eof
+EOF
+
+# ================= NODE =================
+echo "🪶 INSTALL NODE"
+expect <<EOF
+spawn bash <(curl -s https://pterodactyl-installer.se)
+
+expect "Input 0-6"
+send "1\r"
+
+expect "(y/N)"
+send "y\r"
+
+expect "Enter the panel address"
+send "$PANEL_DOMAIN\r"
+
+expect "Database host username"
+send "$DB_USER\r"
+
+expect "Database host password"
+send "$DB_PASS\r"
+
+expect "Set the FQDN to use for Let's Encrypt"
+send "$NODE_DOMAIN\r"
+
+expect "Enter email address"
+send "$ADMIN_EMAIL\r"
+
+expect eof
+EOF
+
+# ================= CREATE NODE =================
+echo "📍 CREATE NODE"
+expect <<EOF
+spawn bash <(curl -s https://raw.githubusercontent.com/SkyzoOffc/Pterodactyl-Theme-Autoinstaller/main/createnode.s)
+
+expect "Masukkan nama lokasi"
+send "Singapore\r"
+
+expect "Masukkan deskripsi lokasi"
+send "Node By Script\r"
+
+expect "Masukkan domain"
+send "$NODE_DOMAIN\r"
+
+expect "Masukkan nama node"
+send "AutoNode\r"
+
+expect "Masukkan RAM"
+send "$RAM_MB\r"
+
+expect "Masukkan jumlah maksimum disk space"
+send "$RAM_MB\r"
+
+expect "Masukkan Locid"
+send "1\r"
+
+expect eof
+EOF
+
+# ================= DONE =================
+clear
+echo "🎉 INSTALL SELESAI"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🌐 Panel   : https://$PANEL_DOMAIN"
+echo "🌐 Node    : https://$NODE_DOMAIN"
+echo "👤 User    : $ADMIN_USER"
+echo "🔐 Pass    : $ADMIN_PASS"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "➡️ Buat Allocation & Ambil Token Wings dari Panel"
+;;
     *)
         echo -e "${RED}Pilihan tidak valid.${RESET}"
         ;;
