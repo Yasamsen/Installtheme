@@ -718,42 +718,48 @@ fi
 set -e
 
 echo -e "🔧 Menginstal dependensi dasar..."
-sudo apt-get update -y >/dev/null 2>&1
-sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget build-essential >/dev/null 2>&1
+sudo apt-get update -y
+sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget build-essential
 
 echo -e "📦 Menambahkan repository Node.js 20.x..."
 sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
-  | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg >/dev/null 2>&1
-echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" \
-  | sudo tee /etc/apt/sources.list.d/nodesource.list >/dev/null
 
-sudo apt-get update -y >/dev/null
-sudo apt-get install -y nodejs >/dev/null 2>&1
+# Gunakan nama distribusi yang sesuai
+DISTRO=$(lsb_release -cs)
+curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+
+echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x $DISTRO main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+
+sudo apt-get update -y
+sudo apt-get install -y nodejs
 
 echo -e "⚙️ Menginstal Yarn..."
-npm install -g yarn >/dev/null 2>&1
+npm install -g yarn
 
 # Masuk ke folder Pterodactyl
 PTERO_DIR="/var/www/pterodactyl"
 cd "$PTERO_DIR" || { echo "❌ Direktori Pterodactyl tidak ditemukan!"; exit 1; }
 
 echo -e "🧩 Menginstal dependencies frontend..."
-yarn >/dev/null 2>&1
-yarn add cross-env >/dev/null 2>&1
+yarn
+yarn add cross-env
 
 echo -e "🚀 Build frontend Pterodactyl..."
-yarn build:production >/dev/null 2>&1 || { echo "⚠️ Build frontend selesai dengan peringatan, lanjut ke Blueprint"; }
+if yarn build:production; then
+    echo "✅ Frontend berhasil dibuild."
+else
+    echo "⚠️ Build frontend selesai dengan peringatan, lanjut ke Blueprint"
+fi
 
 # Download Blueprint versi stabil
 BLUEPRINT_VERSION="v1.0.0"
 BLUEPRINT_URL="https://github.com/BlueprintFramework/framework/releases/download/${BLUEPRINT_VERSION}/blueprint.zip"
 
 echo -e "🌐 Mengunduh Blueprint Framework versi stabil..."
-wget "$BLUEPRINT_URL" -O "$PTERO_DIR/blueprint.zip" >/dev/null 2>&1
+wget "$BLUEPRINT_URL" -O "$PTERO_DIR/blueprint.zip"
 
 echo -e "📂 Mengekstrak Blueprint..."
-unzip -o "$PTERO_DIR/blueprint.zip" -d "$PTERO_DIR/resources/scripts/blueprint" >/dev/null 2>&1
+unzip -o "$PTERO_DIR/blueprint.zip" -d "$PTERO_DIR/resources/scripts/blueprint"
 rm -f "$PTERO_DIR/blueprint.zip"
 
 # Cek dan jalankan blueprint.sh
@@ -761,12 +767,16 @@ BLUEPRINT_SCRIPT="$PTERO_DIR/resources/scripts/blueprint/blueprint.sh"
 if [ -f "$BLUEPRINT_SCRIPT" ]; then
     chmod +x "$BLUEPRINT_SCRIPT"
     echo -e "🚀 Menjalankan Blueprint Framework..."
-    bash "$BLUEPRINT_SCRIPT" >/dev/null 2>&1 || echo "⚠️ Blueprint dijalankan, tapi ada peringatan"
+    if bash "$BLUEPRINT_SCRIPT"; then
+        echo "✅ Blueprint berhasil dijalankan."
+    else
+        echo "⚠️ Blueprint dijalankan, tapi ada peringatan."
+    fi
 else
     echo "❌ blueprint.sh tidak ditemukan. Blueprint tidak dijalankan."
 fi
 
-echo -e "✅ Pterodactyl & Blueprint versi stabil berhasil di-setup!"
+echo -e "🎉 Pterodactyl & Blueprint versi stabil berhasil di-setup!"
 ;;
    14)
         DISABLE_ANIMATIONS=1
