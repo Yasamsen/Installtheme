@@ -721,9 +721,19 @@ echo -e "🔧 Menginstal dependensi dasar..."
 sudo apt-get update -y
 sudo apt-get install -y ca-certificates curl gnupg unzip zip git wget build-essential
 
-echo -e "📦 Menambahkan repository Node.js 18.x..."
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
+echo -e "📦 Install nvm dan Node.js 20..."
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+
+# Load nvm ke session sekarang
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Install dan pakai Node 20
+nvm install 20
+nvm use 20
+node -v
+npm -v
 
 echo -e "⚙️ Menginstal Yarn..."
 npm install -g yarn
